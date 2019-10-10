@@ -1,82 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using VersionCompare.Services;
 
-namespace Test_Web_App.Controllers
+namespace VersionCompare.Controllers
 
 {
+    /// <summary>
+    /// The arguments for the /generic endpoint
+    /// TODO: This should probably be moved or cleaned up or something - DAJ 20191009
+    /// </summary>
     public class CompareVersionsArgs
     {
         public string version1 { get; set; }
         public string version2 { get; set; }
     }
 
+    /// <summary>
+    /// The arguments for the /dotnet endpoint
+    /// TODO: This should probably be moved or cleaned up or something - DAJ 20191009
+    /// </summary>
+    public class CompareDotNetVersionArgs
+    {
+        public Version version1 { get; set; }
+        public Version version2 { get; set; }
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class VersionController : ControllerBase
     {
-        private Services.VersionService _versionService;
-        public VersionController(Services.VersionService versionService) {
+        private IVersionService _versionService;
+        public VersionController(IVersionService versionService) {
             _versionService = versionService;
         }
 
-        [HttpPost]
-        [Route("custom")]
-        public string CompareVersions([FromBody] CompareVersionsArgs args)
+        [HttpPost("generic")]
+        public IActionResult CompareGenericVersions([FromBody] CompareVersionsArgs args)
         {
-            var stringCompared = String.Compare(args.version1, args.version2);
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            var version1Tokens = args.version1.Split('.');
-            var version2Tokens = args.version2.Split('.');
-
-            // What if one is longer than the other?
-
-            if (version1Tokens.Length > version2Tokens.Length)
-            {
-                return "before";
-            }
-            else if (version1Tokens.Length < version2Tokens.Length)
-            {
-                return "after";
-            }
-            else
-            {
-
-            }
-
-            for (var i = 0; i < version1Tokens.Length; i++)
-            {
-                if (i == version2Tokens.Length)
-                {
-
-                }
-
-                var v1Token = Convert.ToInt32(version1Tokens[i]);
-                var v2Token = Convert.ToInt32(version2Tokens[i]);
-
-                if (v1Token > v2Token)
-                {
-                    return "after";
-                }
-                else if (v1Token < v2Token)
-                {
-                    return "before";
-                }
-            }
-
-            return $"{args.version1} {stringCompared}";
+            var result = _versionService.CompareGenericVersionStrings(args.version1, args.version2);
+            return Ok(result);
         }
 
-
-
-        [HttpPost]
-        [Route("dotnet")]
-        public string CompareDotnetVersions([FromBody] CompareVersionsArgs args)
+        [HttpPost("dotnet")]
+        public IActionResult CompareDotnetVersions([FromBody] CompareDotNetVersionArgs args)
         {
-            return _versionService.CompareDotNetVersions(args.version1, args.version2);
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var result = _versionService.CompareVersionStrings(args.version1, args.version2);
+            return Ok(result);
         }
     }
 }

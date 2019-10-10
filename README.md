@@ -24,3 +24,6 @@ this project and run the following commands to build and then run the app:
 docker build -t versioncompare .
 docker run -d -p 8000:80 --name versioncomparedockerapp versioncompare
 ```
+
+It can also be ran through any IDE that supports .NET core v2.2. The easiest way is to load the solution and then build with the
+IDE. The default port should be set to :8000 when ran this way.
