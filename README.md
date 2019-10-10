@@ -22,5 +22,5 @@ this project and run the following commands to build and then run the app:
 
 ```
 docker build -t versioncompare .
-docker run -d -p 8080:80 --name versioncomparedockerapp versioncompare
+docker run -d -p 8000:80 --name versioncomparedockerapp versioncompare
 ```
